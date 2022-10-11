@@ -8,9 +8,16 @@ from models.base_model import BaseModel
 
 
 class Amenity(BaseModel):
-    """An amenity provided by a place in the application.
-    Attributes:
-        name
     """
+    Public class attributes:
+        name: string - empty string
+    """
+    name = ''
 
-    name = ""
+    def __init__(self, *args, **kwargs):
+        if len(kwargs) == 0:
+            super().__init__()
+
+        # if kwargs have values
+        if len(kwargs) > 0:
+            super().__init__(**kwargs)

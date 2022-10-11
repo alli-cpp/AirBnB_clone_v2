@@ -12,4 +12,12 @@ class State(BaseModel):
     Attributes:
         name
     """
-    name = ""
+    name = ''
+
+    def __init__(self, *args, **kwargs):
+        if len(kwargs) == 0:
+            super().__init__()
+
+        # if kwargs have values
+        if len(kwargs) > 0:
+            super().__init__(**kwargs)
