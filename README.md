@@ -1,2 +1,1 @@
-# AirBnB_clone_v2
-SQL Injection
+This is our first Airbnb clone version at Alx-Holberton

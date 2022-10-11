@@ -1,0 +1,30 @@
+{
+  "BaseModel.bce47ab5-c7f4-4c59-81ab-2fc700d1f534": {
+    "id": "bce47ab5-c7f4-4c59-81ab-2fc700d1f534",
+    "created_at": "2022-09-06T22:42:37.565891",
+    "updated_at": "2022-09-06T22:42:37.566364",
+    "__class__": "BaseModel"
+  },
+  "User.189eb52f-2eb2-46b1-94c0-0f663b3f44c1": {
+    "id": "189eb52f-2eb2-46b1-94c0-0f663b3f44c1",
+    "created_at": "2022-09-06T22:42:50.559292",
+    "updated_at": "2022-09-06T22:42:50.559337",
+    "__class__": "User"
+  },
+  "BaseModel.ca490036-fb32-47bb-9181-3e4314304e4f": {
+    "id": "ca490036-fb32-47bb-9181-3e4314304e4f",
+    "created_at": "2022-09-07T06:09:37.570696",
+    "updated_at": "2022-09-07T06:09:37.570753",
+    "test_name": "test",
+    "number": 9238,
+    "name": "New",
+    "num": "84.75",
+    "__class__": "BaseModel"
+  },
+  "Review.f0bb118c-b6ed-4839-ade8-575b2d1ffd14": {
+    "id": "f0bb118c-b6ed-4839-ade8-575b2d1ffd14",
+    "created_at": "2022-09-07T06:59:24.523590",
+    "updated_at": "2022-09-07T06:59:24.523628",
+    "__class__": "Review"
+  }
+}
