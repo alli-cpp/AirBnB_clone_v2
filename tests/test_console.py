@@ -1,42 +1,41 @@
-'''
-    module documentation
-'''
+#!/usr/bin/python3
+"""
+Contains the class TestConsoleDocs
+"""
+
+import console
+import inspect
+import pep8
 import unittest
-from models.base_model import BaseModel
-import os
-import sys
-from console import HBNBCommand
-from io import StringIO
+HBNBCommand = console.HBNBCommand
 
 
-class TestHBNBCommand(unittest.TestCase):
-    """
-    this class test HBNBCommand class and your behavior
-    """
+class TestConsoleDocs(unittest.TestCase):
+    """Class for testing documentation of the console"""
+    def test_pep8_conformance_console(self):
+        """Test that console.py conforms to PEP8."""
+        pep8s = pep8.StyleGuide(quiet=True)
+        result = pep8s.check_files(['console.py'])
+        self.assertEqual(result.total_errors, 0,
+                         "Found code style errors (and warnings).")
 
-    def setUp(self) -> None:
-        return super().setUp()
+    def test_pep8_conformance_test_console(self):
+        """Test that tests/test_console.py conforms to PEP8."""
+        pep8s = pep8.StyleGuide(quiet=True)
+        result = pep8s.check_files(['tests/test_console.py'])
+        self.assertEqual(result.total_errors, 0,
+                         "Found code style errors (and warnings).")
 
-    def out_test(self, func, arg, expect):
-        """Axiliar function to test some commands of the console"""
-        std_out = StringIO()
-        sys.stdout = std_out
-        func(arg)
-        output = std_out.getvalue()
-        self.assertEqual(output, expect + '\n')
-        return output
+    def test_console_module_docstring(self):
+        """Test for the console.py module docstring"""
+        self.assertIsNot(console.__doc__, None,
+                         "console.py needs a docstring")
+        self.assertTrue(len(console.__doc__) >= 1,
+                        "console.py needs a docstring")
 
-    def test_creation_failed(self):
-        """Testing the 'create' command of the console - the error messages"""
-        try:
-            os.remove('file.json')
-        except:
-            pass
-        cmd = HBNBCommand()
-
-        self.out_test(cmd.do_create, '', HBNBCommand.ERROR_CLASS_NAME)
-        self.out_test(cmd.do_create, 'myModel', HBNBCommand.ERROR_CLASS)
-
-    # def test_create_ok(self):
-    #     cmd = HBNBCommand()
-    #     out = self.out_test(cmd.do_create, 'BaseModel', '')
+    def test_HBNBCommand_class_docstring(self):
+        """Test for the HBNBCommand class docstring"""
+        self.assertIsNot(HBNBCommand.__doc__, None,
+                         "HBNBCommand class needs a docstring")
+        self.assertTrue(len(HBNBCommand.__doc__) >= 1,
+                        "HBNBCommand class needs a docstring")

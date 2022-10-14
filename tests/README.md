@@ -1,1 +1,0 @@
-This is a folder containing all the test files for the project
