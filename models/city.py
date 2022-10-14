@@ -5,20 +5,20 @@ Defines one class, `City(),
 which sub-classes the `BaseModel()` class.`
 """
 
+from models.base_model import BaseModel, Base
+from models import storage_type
+from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy.orm import relationship
 
-class City(BaseModel):
-    """
-    Public class attributes:
-        state_id: string - empty string: it will be the State.id
-        name: string - empty string
-    """
-    state_id = ''
-    name = ''
 
-    def __init__(self, *args, **kwargs):
-        if len(kwargs) == 0:
-            super().__init__()
-
-        # if kwargs have values
-        if len(kwargs) > 0:
-            super().__init__(**kwargs)
+class City(BaseModel, Base):
+    """ The city class, contains state ID and name """
+    __tablename__ = 'cities'
+    if storage_type == 'db':
+        name = Column(String(128), nullable=False)
+        state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
+        places = relationship('Place', backref='cities',
+                              cascade='all, delete, delete-orphan')
+    else:
+        name = ''
+        state_id = ''

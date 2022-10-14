@@ -1,128 +1,69 @@
 #!/usr/bin/python3
-"""
-A module handling file storage engine of the application
-"""
-
+"""This module defines a class to manage file storage for hbnb clone"""
 import json
-import importlib
-import re
 
 
 class FileStorage:
-    """ An abstracted file storage engine
-    Private class attributes:
-        __file_path: string - path to the JSON file (ex: file.json)
-        __objects: dictionary - empty but will store all objects by
-        class name.id
-    Public instance methods:
-        all(self): returns the dictionary __objects
-        new(self, obj): sets in __objects the obj with
-        key <obj class name>.id save(self): serializes
-        __objects to the JSON file (path: __file_path)
-        reload(self): deserializes the JSON file to __objects
-        (only if the JSON file (__file_path) exists otherwise
-        , do nothing.
-    """
+    """This class manages storage of hbnb models in JSON format"""
     __file_path = 'file.json'
     __objects = {}
 
-    def all(self):
-        """ returns the dictionary __objects """
-        return FileStorage.__objects
+    def all(self, cls=None):
+        """Returns a dictionary of models currently in storage"""
+        if cls is None:
+            return self.__objects
+        cls_name = cls.__name__
+        dct = {}
+        for key in self.__objects.keys():
+            if key.split('.')[0] == cls_name:
+                dct[key] = self.__objects[key]
+        return dct
 
     def new(self, obj):
-        """Creates a new instance of a specific class and
-        saves it into the file storage
-        """
-        key_name = "{}.{}".format(obj.__class__.__name__, obj.id)
-        FileStorage.__objects[key_name] = obj
+        """Adds new object to storage dictionary"""
+        self.__objects.update(
+            {obj.to_dict()['__class__'] + '.' + obj.id: obj}
+        )
 
     def save(self):
-        """Saves the instances of all classes into a
-        .json file using the json string format
-        """
-        content = self.__serialize()
-
-        with open(FileStorage.__file_path, 'w') as file:
-            file.write(content)
+        """Saves storage dictionary to file"""
+        with open(self.__file_path, 'w') as f:
+            temp = {}
+            temp.update(self.__objects)
+            for key, val in temp.items():
+                temp[key] = val.to_dict()
+            json.dump(temp, f)
 
     def reload(self):
-        """Deserializes the JSON file to __objects (only if
-        the JSON file (__file_path) exists ; otherwise, do nothing.
-        """
-        file_data = self.__deserialize()
+        """Loads storage dictionary from file"""
+        from models.base_model import BaseModel
+        from models.user import User
+        from models.place import Place
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.review import Review
 
-        if not file_data:
-            return
-
-        for k, value in file_data.items():
-            class_name = value["__class__"]
-            FileStorage.__objects[k] = self.choose_class(class_name, value)
-
-    def create(self, class_name):
-        """Auxiliar function to create new instances of an specific class
-        """
-        my_model = self.choose_class(class_name)
-        my_model.save()
-        print(my_model.id)
-
-    def choose_class(self, class_name, data=None):
-        """Chooses the correct kind of class for an instance - to create
-        instances, to use the to_dict function, to save into the Json file,etc.
-        """
-        module_name = self.to_snake_case(class_name)
-        module = importlib.import_module(module_name)
-        class_ = getattr(module, class_name)
-        if data:
-            return class_(**data)
-        else:
-            return class_()
-
-    def print(self, class_name=None):
-        """ print all elements in storage and filter by class_name"""
-        print(self.filter_by_class(class_name))
-
-    def filter_by_class(self, class_name):
-        """Auxiliar function to print or show the instances of an specific
-        type of class.
-        """
-        if not class_name:
-            return self.to_list()
-
-        filtered = []
-        for k, value in self.all().items():
-            split_key = k.split('.')
-            if split_key[0] == class_name:
-                filtered.append(str(value))
-        return filtered
-
-    def to_list(self):
-        """ take a dictionary and transform this to list
-            with objects cast to str"""
-        data_list = []
-        for _, value in self.all().items():
-            data_list.append(str(value))
-        return data_list
-
-    def __serialize(self):
-        """
-        BaseModel->to_dict() -> <class 'dict'> -> JSON dump -> <class 'str'>
-        """
-        objects = {}
-        for key, obj in self.all().items():
-            objects[key] = obj.to_dict()
-
-        return str(json.dumps(objects))
-
-    def __deserialize(self):
-        "File -> str -> JSON load -> dict -> BaseModel"
+        classes = {
+            'BaseModel': BaseModel, 'User': User, 'Place': Place,
+            'State': State, 'City': City, 'Amenity': Amenity,
+            'Review': Review
+        }
         try:
-            with open(FileStorage.__file_path) as file:
-                return json.load(file)
-        except:
+            temp = {}
+            with open(self.__file_path, 'r') as f:
+                temp = json.load(f)
+                for key, val in temp.items():
+                    self.all()[key] = classes[val['__class__']](**val)
+        except FileNotFoundError:
             pass
 
-    def to_snake_case(self, text):
-        """ Transform text to snake case """
-        module_name = re.sub(r'(?<!^)(?=[A-Z])', '_', text).lower()
-        return "models.{}".format(module_name)
+    def delete(self, obj=None):
+        ''' deletes the object obj from the attribute
+            __objects if it's inside it
+        '''
+        if obj is None:
+            return
+        obj_key = obj.to_dict()['__class__'] + '.' + obj.id
+        if obj_key in self.__objects.keys():
+            del self.__objects[obj_key]
