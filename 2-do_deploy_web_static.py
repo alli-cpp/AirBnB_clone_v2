@@ -1,53 +1,38 @@
 #!/usr/bin/python3
-"""This python script distributes an archive to web servers,
-using the function do_deploy"""
-from os.path import exists
+"""Script that does the deployment"""
+import os
 from fabric.api import run, put, env
 
-env.hosts = ["44.192.38.74", "35.174.176.158"]
+
+env.hosts = ['34.139.167.198', '34.138.129.5']
 
 
 def do_deploy(archive_path):
-    """Deployes the archive to the webserver"""
-    if not exists(archive_path):
+    """Distributes an archive to your web servers"""
+
+    mkdir_cmd = "mkdir -p /data/web_static/releases/"
+    rm_cmd = "rm -rf /data/web_static/releases/"
+    deployed_success = "New Version Deployed!"
+    if os.path.exists(archive_path):
+        try:
+            put(archive_path, "/tmp/")
+            filename = archive_path.split('/', 1)
+            no_ext = filename[1].split('.', 1)
+            file_name = no_ext[0]
+            run(mkdir_cmd + file_name + "/")
+            run("tar -zxf /tmp/" + filename[1] +
+                " -C /data/web_static/releases/" +
+                file_name + "/")
+            run("rm /tmp/" + filename[1])
+            run("mv /data/web_static/releases/" + file_name +
+                "/web_static/* /data/web_static/releases/" + file_name + "/")
+            run(rm_cmd + file_name + "/web_static")
+            run("rm -rf /data/web_static/current")
+            run("ln -s /data/web_static/releases/" + file_name +
+                "/ /data/web_static/current")
+            print("{}".format(deployed_success))
+            return True
+        except:
+            return False
+    else:
         return False
-
-    full_name = archive_path.split("/")[1]
-    file_name = archive_path.split("/")[1].split(".")[0]
-
-    if put(archive_path, "/tmp/{}".format(
-           full_name)).failed is True:
-        return False
-
-    if run("rm -rf /data/web_static/releases/{}/".format(
-           file_name)).succeeded is False:
-        return False
-
-    if run("mkdir -p /data/web_static/releases/{}/".format(
-           file_name)).succeeded is False:
-        return False
-
-    if run("tar -xzf /tmp/{} -C /data/web_static/releases/{}/".format(
-           full_name, file_name)).succeeded is False:
-        return False
-
-    if run("rm /tmp/{}".format(full_name)).failed is True:
-        return False
-
-    if run("mv /data/web_static/releases/{}/web_static/* "
-           "/data/web_static/releases/{}/".format(file_name, file_name)
-           ).failed is True:
-        return False
-
-    if run("rm -rf /data/web_static/releases/{}/web_static".
-           format(file_name)).failed is True:
-        return False
-
-    if run("rm -rf /data/web_static/current").failed is True:
-        return False
-
-    if run("ln -s /data/web_static/releases/{}/ /data/web_static/current".
-           format(file_name)).succeeded is False:
-        return False
-
-    return True
